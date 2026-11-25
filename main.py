@@ -27,11 +27,18 @@ Why this line (judged against the bounty brief in RULES.txt):
 
 import os
 
-JOKE = (
-    "I stayed on mute through the entire 90-minute all-hands. "
+# Output path required by the bounty gate (RULES.txt).
+OUTPUT_PATH = "/output/entry.txt"
+
+# The entry is built from two beats so the structure is explicit in code:
+# the setup (muted through the all-hands) and the punchline (the review
+# praises the silence). Concatenated, they are the single 136-char line.
+_JOKE_SETUP = "I stayed on mute through the entire 90-minute all-hands. "
+_JOKE_PUNCHLINE = (
     "My manager Sarah just praised my 'thoughtful silence' "
     "in my performance review."
 )
+JOKE = _JOKE_SETUP + _JOKE_PUNCHLINE
 
 
 def main() -> None:
@@ -46,14 +53,14 @@ def main() -> None:
         raise SystemExit("JOKE must be a single line")
     JOKE.encode("utf-8")  # gate requires UTF-8 text
 
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8", newline="") as f:
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
         f.write(JOKE)
 
     # Read-back verification: prove the file the grader reads is
     # byte-identical to JOKE. Fail loudly rather than ship a corrupted
     # or truncated entry.
-    with open("/output/entry.txt", "r", encoding="utf-8", newline="") as f:
+    with open(OUTPUT_PATH, "r", encoding="utf-8", newline="") as f:
         written = f.read()
     if written != JOKE:
         raise SystemExit(
